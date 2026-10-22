@@ -1,0 +1,238 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cooling and Water Tool</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Source+Sans+3:wght@400;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --ground:#f4f5f1;--surface:#fff;--surface2:#eceee8;--ink:#171d1b;--muted:#5c6662;--rule:#d8ddd6;--rule2:#c5ccc4;
+  --navy:#1f3a5f;--accent:#eb6834;--exist:#00A3E0;--uc:#d9482b;--prop:#E69F00;--red:#8b1a2b;--green:#1e9e6a;--amber:#b07a1a;--blue:#1f6f8b;
+  --pink:#f3e6e8;--strip:#fbe3d6;--slider:#7b3fe4;--onnavy:#ffffff;
+  --display:"Fraunces",Georgia,serif;--body:"Source Sans 3","Segoe UI",system-ui,sans-serif;--mono:"IBM Plex Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --ground:#151a19;--surface:#1e2523;--surface2:#242c29;--ink:#e9ece7;--muted:#9aa39e;--rule:#2f3835;--rule2:#3c4642;
+  --navy:#9db8dc;--accent:#f08a5e;--exist:#4cc3f0;--uc:#e8623f;--prop:#f5b73a;--red:#e07a86;--green:#3cc593;--amber:#e0a53a;--blue:#6fb3cc;--pink:#3a2a2e;--strip:#4a3328;--slider:#a98bff;--onnavy:#151a19}}
+:root[data-theme="dark"]{
+  --ground:#151a19;--surface:#1e2523;--surface2:#242c29;--ink:#e9ece7;--muted:#9aa39e;--rule:#2f3835;--rule2:#3c4642;
+  --navy:#9db8dc;--accent:#f08a5e;--exist:#4cc3f0;--uc:#e8623f;--prop:#f5b73a;--red:#e07a86;--green:#3cc593;--amber:#e0a53a;--blue:#6fb3cc;--pink:#3a2a2e;--strip:#4a3328;--slider:#a98bff;--onnavy:#151a19}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.5}
+header{position:sticky;top:0;z-index:5;background:var(--ground);border-bottom:1px solid var(--rule)}
+.bar{max-width:1000px;margin:0 auto;padding:10px 16px;display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px}
+.brand{font-family:var(--display);font-size:19px;font-weight:600}
+.brand small{font-family:var(--body);font-weight:400;color:var(--muted);font-size:12.5px;margin-left:8px}
+nav{display:flex;flex-wrap:wrap;gap:4px;margin-left:auto}
+nav button{font:600 13px var(--body);color:var(--muted);background:none;border:0;padding:6px 9px;border-radius:6px;cursor:pointer}
+nav button:hover{color:var(--ink);background:var(--surface2)}
+nav button[aria-selected="true"]{color:var(--ink);background:var(--surface);box-shadow:0 1px 2px rgba(0,0,0,.12)}
+button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:2px solid var(--slider);outline-offset:2px}
+main{max-width:1000px;margin:0 auto;padding:18px 16px 40px}
+section.screen{display:none}section.screen.active{display:block}
+.qnum{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:600}
+h1{font-family:var(--display);font-weight:500;font-size:32px;line-height:1.15;margin:4px 0 8px;text-wrap:balance;letter-spacing:-.01em}
+h2{font-family:var(--display);font-weight:500;font-size:19px;margin:0 0 8px}
+p{max-width:72ch;margin:0 0 10px}
+.lede{color:var(--muted);font-size:17.5px}
+.panel{background:var(--surface);border:1px solid var(--rule);border-radius:10px;padding:16px 18px;margin:12px 0;box-shadow:0 1px 2px rgba(0,0,0,.06)}
+.controls{display:flex;flex-wrap:wrap;gap:10px 20px;align-items:center;margin:0 0 10px;font-size:15px}
+.controls label{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+input[type=range]{accent-color:var(--slider);width:min(220px,55vw)}
+select{font:15px var(--body);color:var(--ink);background:var(--surface);border:1px solid var(--rule2);border-radius:6px;padding:6px 8px;max-width:100%}
+.toggle{display:inline-flex;border:1px solid var(--rule2);border-radius:6px;overflow:hidden;flex-wrap:wrap}
+.toggle button{font:600 14px var(--body);background:var(--surface);color:var(--muted);border:0;padding:7px 12px;cursor:pointer}
+.toggle button[aria-pressed="true"]{background:var(--surface2);color:var(--ink)}
+.readout{font-family:var(--mono);font-size:15px;background:var(--surface2);padding:4px 9px;border-radius:5px}
+.fig{width:100%;height:auto;display:block;overflow:visible}
+.fig text{font-family:var(--body);font-size:15px;fill:var(--ink)}
+.fig .muted{fill:var(--muted)}
+.fig .onnavy{fill:var(--onnavy)}
+.fig .small{font-size:13px}
+.cap{font-size:14px;color:var(--muted);margin:6px 0 0}
+.take{border-left:5px solid var(--navy);background:var(--surface2);border-radius:0 8px 8px 0;padding:12px 16px;margin:12px 0;font-size:17px}
+.take b{font-family:var(--display);color:var(--navy);font-weight:500}
+.limit{border-left:5px solid var(--red);background:var(--surface2);border-radius:0 8px 8px 0;padding:10px 16px;margin:10px 0;font-size:15px}
+.limit b{color:var(--red)}
+.basis{display:inline-block;font:600 11px var(--body);letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border-radius:999px;border:1px solid var(--rule2);color:var(--muted);vertical-align:middle;margin-left:4px}
+.basis.rule{border-color:var(--green);color:var(--green)}.basis.prop{border-color:var(--amber);color:var(--amber)}.basis.rec{border-color:var(--blue);color:var(--blue)}.basis.calc{border-color:var(--rule2);color:var(--muted)}.basis.study{border-color:var(--navy);color:var(--navy)}
+details{margin:12px 0 0;font-size:14.5px;color:var(--muted)}
+details summary{cursor:pointer;color:var(--ink);font-weight:600;font-size:15px}
+details p{max-width:none;margin:8px 0}
+.pn{display:flex;justify-content:space-between;gap:12px;margin-top:20px}
+.pn button{font:600 15px var(--body);background:var(--surface);color:var(--ink);border:1px solid var(--rule2);border-radius:8px;padding:10px 16px;cursor:pointer}
+.pn button:disabled{opacity:.4;cursor:default}
+.qlist{list-style:none;padding:0;margin:14px 0;display:grid;gap:8px}
+.qlist li button{width:100%;text-align:left;font:17px var(--body);background:var(--surface);color:var(--ink);border:1px solid var(--rule);border-radius:10px;padding:12px 16px;cursor:pointer;display:flex;gap:14px;align-items:baseline;flex-wrap:wrap}
+.qlist li button:hover{border-color:var(--navy)}
+.qlist .n{font-family:var(--mono);color:var(--accent);font-weight:500}
+.qlist .s{color:var(--muted);font-size:14px;margin-left:auto}
+.two{display:grid;grid-template-columns:11fr 9fr;gap:18px}
+@media (max-width:760px){.two{grid-template-columns:1fr}h1{font-size:26px}.fig text{font-size:24px}.fig .small{font-size:20px}}
+.foot{margin-top:32px;padding-top:14px;border-top:1px solid var(--rule);font-size:13px;color:var(--muted)}
+.foot a{color:var(--navy)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:6px 8px;border-bottom:1px solid var(--rule)}
+th{font-size:12px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.map svg{width:100%;height:auto;display:block;background:var(--surface2);border-radius:8px}
+.map .rl{font-family:var(--body);font-size:10.5px;fill:var(--ink);paint-order:stroke;stroke:var(--surface2);stroke-width:3px;stroke-linejoin:round}
+.map .pl{font-family:var(--body);font-size:10px;fill:#2e7d4f;font-style:italic;paint-order:stroke;stroke:var(--surface2);stroke-width:3px}
+.map .ll{font-family:var(--body);font-size:10px;fill:var(--ink);paint-order:stroke;stroke:var(--surface2);stroke-width:3px}
+.legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12.5px;color:var(--muted);margin:6px 0 0}.legend span{display:inline-flex;align-items:center;gap:5px}.legend i{display:inline-block;width:18px;height:0;border-top:3px solid #888}.legend i.fw{border-top:4px solid #6b6f73}.legend i.ar{border-top:2px solid #9a9ea2}.legend i.lim{border-top:2px dashed #b0462b}.legend i.band{border-top:2px dashed var(--navy)}.legend b{display:inline-block;width:11px;height:11px;border-radius:50%}.legend b.sch{background:#7b3fe4;border-radius:2px}.legend b.cc{background:#e07b00}.legend b.gw{width:6px;height:6px;background:#777}.legend b.park{background:#bfe3c6;border:1px solid #6fbf87;border-radius:2px}
+.kv{display:grid;grid-template-columns:1fr;gap:2px;font-size:15px;margin:8px 0}.kv span{color:var(--muted);font-size:13px}.kv b{font-weight:600;margin-bottom:6px}
+.stat{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 10px}.stat div{background:var(--surface2);border-radius:8px;padding:10px 12px}.stat .n{font-family:var(--mono);font-size:24px;font-weight:500}.stat .l{font-size:13px;color:var(--muted)}
+.cal{display:grid;grid-template-columns:repeat(12,1fr);gap:4px;margin:10px 0}
+.cal div{height:56px;border-radius:5px;background:var(--surface2);position:relative;font-size:11px;color:var(--muted);padding:3px 4px}
+.cal div i{position:absolute;left:4px;right:4px;bottom:4px;height:5px;border-radius:2px;background:var(--green)}
+.cal div.em i{height:32px;background:var(--red)}
+.cal div.off i{display:none}
+@media (max-width:760px){.cal{grid-template-columns:repeat(6,1fr)}}
+.sr{position:absolute;left:-9999px}
+</style>
+</head>
+<body>
+<header><div class="bar">
+  <div class="brand">Cooling and Water Tool <small>Pillar 2, Water: Fort Worth Data Center and Infrastructure Commission</small></div>
+  <nav id="nav" role="tablist" aria-label="Questions"></nav>
+</div></header>
+<main id="main"></main>
+<script>
+const SCREENS=[
+ {id:'start',short:'Start',title:'Cooling and water: three questions'},
+ {id:'path',short:'1 Where water goes',title:'Where does the water go?'},
+ {id:'howmuch',short:'2 How much',title:'How much water would a campus use?'},
+ {id:'rule',short:'3 The rule',title:'What does Fort Worth\'s rule say?'},
+];
+const B=(cls,t)=>`<span class="basis ${cls}">${t}</span>`;
+const fmt=n=>Math.round(n).toLocaleString('en-US');
+const METHODS={
+ tower:{n:'Open-loop evaporative (cooling tower)',where:'Heat-carrying water is sprayed through air; part of it evaporates.',water:'Highest. Modeled tower systems: about 2.1 to 2.4 liters per IT kWh. City estimate: 4 to 6 million gallons a month per 100 acres.',elec:'Lowest electricity for cooling.',closed:false,wet:true,int:2.44,lab:'2.44 L/kWh (upper modeled tower value)'},
+ ccet:{n:'Closed-circuit evaporative (evaporative fluid cooler)',where:'Process fluid sealed in a coil; a separate spray circuit wets the coil and evaporates to the air.',water:'Substantial, of the same order as a tower. "Closed" describes the process loop, not the water.',elec:'Low.',closed:true,wet:true,int:2.11,lab:'2.11 L/kWh (lower modeled tower value, used here as a proxy)'},
+ hybrid:{n:'Hybrid or adiabatic',where:'A dry cooler with a water spray or wetted pad used only in hot hours.',water:'Low most of the year, concentrated on the hottest days, which are the days that set peak demand.',elec:'Moderate.',closed:true,wet:'hot',int:0.27,lab:'0.27 L/kWh (a reported hyperscale fleet average, a mix of designs; no Fort Worth hybrid figure exists)'},
+ dry:{n:'Dry (air-cooled chillers, dry coolers)',where:'Sealed fluid; fans move air over coils; no water touches air.',water:'Near zero beyond a one-time fill (about 3,000 to 6,000 gallons per MW) and domestic use.',elec:'Highest: about 5 to 15 percent more cooling electricity on hot days (the brief\'s working range).',closed:true,wet:false,int:0,lab:'0 L/kWh (one-time fill only)'},
+};
+function pn(i){const last=SCREENS.length-1;return `<div class="pn"><button data-go="${i-1}" ${i===0?'disabled':''}>Previous</button><button data-go="${i+1}" ${i===last?'disabled':''}>${i===last?'End':'Next'}</button></div>
+<div class="foot">Figures and sources are in the Pillar 2 research brief, Water Use and Local Resources (Section 4.2 of the Commission report). The QTS figure is an operator statement to the Commission (October 21, 2026). Prepared by Dr. Gehendra Kharel, STREAM Lab, TCU, for the Fort Worth Data Center and Infrastructure Commission, October 22, 2026. Describes evidence; does not recommend for or against data centers; not a legal opinion.</div>`;}
+function build(){
+ let h='';
+ h+=`<section class="screen" id="start" role="tabpanel"><div class="qnum">Water use and local resources · Section 4.2 of the Commission report</div>
+ <h1>Cooling and water: three questions</h1>
+ <p class="lede">A short walk-through of the terms that get mixed up, the numbers behind them, and what the City's August 2026 rule does and does not settle. One picture per screen, with what it can and cannot tell you.</p>
+ <ul class="qlist">${SCREENS.slice(1).map((s,i)=>`<li><button data-go="${i+1}"><span class="n">${i+1}</span><span>${s.title}</span><span class="s">${['open, closed, hybrid, dry','a calculator with the brief\'s numbers','closed-loop as defined, and the open question'][i]}</span></button></li>`).join('')}</ul>
+ <div class="panel"><h2>How to read the labels</h2>
+ <p>${B('rule','Adopted rule')} the City Code or an adopted City policy; ${B('rec','City records')} City web page or public dataset; ${B('study','Published study')} a peer-reviewed or official report; ${B('calc','Illustrative calculation')} a screening calculation on stated assumptions, not a prediction for any site; ${B('prop','Operator statement')} a figure stated by an operator, not independently verified.</p></div>
+ ${pn(0)}</section>`;
+ h+=`<section class="screen" id="path" role="tabpanel"><div class="qnum">Question 1 · How data centers use energy and remove heat (4.2.1)</div><h1>Where does the water go?</h1>
+ <p class="lede">Nearly all the electricity a data center uses becomes heat. Inside the building, a secondary system carries that heat from the computers to the facility loop; outside, the primary heat-rejection system puts it into the air. Only the last step decides how much water is used.</p>
+ <div class="panel"><div class="controls"><label>Primary heat rejection <select id="meth">${Object.entries(METHODS).map(([k,m])=>`<option value="${k}">${m.n}</option>`).join('')}</select></label>
+ <label style="margin-left:auto">Rack-side cooling <select id="sec"><option>Air (fans over servers)</option><option>Liquid to chip</option><option>Immersion</option></select></label></div>
+ <svg class="fig" id="c-path" role="img" aria-labelledby="c-path-t"><title id="c-path-t">Heat path from computers to the outside air, showing where water touches air for the selected method</title></svg>
+ <p class="cap" id="path-cap"></p><div id="path-text"></div></div>
+ <div class="take" id="path-take"></div>
+ <div class="limit"><b>What this does not show.</b> Real campuses combine equipment and switch modes by season and load; the brief's intensities are modeled or fleet-average values, not measurements at any Fort Worth site. The rack-side choice changes how warm the coolant can be, and therefore how much electricity a dry design needs in summer, but it does not itself consume water. ${B('study','Pillar 2 brief, Key Findings 1 and 2')}</div>
+ <details><summary>Why "closed-loop" is the word that causes trouble</summary><p>A loop is "closed" when the fluid carrying the heat stays sealed. Dry coolers and air-cooled chillers are closed and essentially water-free. Closed-circuit evaporative coolers and hybrid or adiabatic units are also closed on the process side, yet they spray water over the outside of the coil, and that water evaporates; from the air's point of view they are open. Both statements in the Commission's email thread are therefore correct: evaporation requires open contact with air (the spray circuit), and the equipment is still called closed-loop (the process circuit). The label alone does not say how much water a campus will use; the heat-rejection method, or a metered make-up water figure, does.</p></details>
+ ${pn(1)}</section>`;
+ h+=`<section class="screen" id="howmuch" role="tabpanel"><div class="qnum">Question 2 · Illustrative calculations (4.2.3)</div><h1>How much water would a campus use?</h1>
+ <p class="lede">Pick a size and a water intensity. The arithmetic is the brief's: megawatts of computing load, hours in a year, liters per kilowatt-hour, converted to gallons. It is an upper-bound illustration at full load, not a prediction for any site.</p>
+ <div class="panel"><div class="controls">
+  <label>Computing (IT) load <input type="range" id="mw" min="10" max="1000" step="10" value="1000"> <span class="readout" id="mw-out">1,000 MW</span></label>
+  <label>Water intensity <select id="int">
+   <option value="0">0 L/kWh: dry heat rejection (one-time fill only)</option>
+   <option value="0.12">0.12 L/kWh: lowest reported operator fleet average (Amazon)</option>
+   <option value="0.27" selected>0.27 L/kWh: reported hyperscale fleet average (Microsoft)</option>
+   <option value="0.34">0.34 L/kWh: highest reported operator fleet average</option>
+   <option value="2.11">2.11 L/kWh: modeled cooling-tower system, lower value</option>
+   <option value="2.44">2.44 L/kWh: modeled cooling-tower system, upper value</option>
+  </select></label></div>
+  <div class="stat" id="hm-stat"></div>
+  <svg class="fig" id="c-bar" role="img" aria-labelledby="c-bar-t"><title id="c-bar-t">Bar showing the campus's average daily water use against Fort Worth's average and maximum day</title></svg>
+  <p class="cap" id="hm-cap"></p>
+  <div id="hm-text"></div></div>
+ <div class="take" id="hm-take"></div>
+ <div class="limit"><b>What this does not show.</b> Full load all year overstates most real operations; the fleet averages mix designs and climates; the tower values are modeled, not metered; and none of these is a Fort Worth measurement. The one Fort Worth figure available, QTS at about 50,000 gallons a month, is an operator statement. Indirect water used at power plants to make the electricity is a separate quantity and is not added here. ${B('calc','Illustrative calculation')}</div>
+ <details><summary>The arithmetic, and the comparison figures</summary><p>Annual water (gallons) = MW × 1,000 × 8,760 hours × intensity (L/kWh) ÷ 3.785 liters per gallon. Average daily use = annual ÷ 365. Fort Worth Water FY2025: average day 216 MGD, maximum day 342.49 MGD, reported daily treatment capacity 517 MGD. Household comparison: 76 gallons per person per day (2024 Water Conservation Plan) and 2.76 persons per household, about 210 gallons a day. City of Fort Worth estimates per 100 acres: closed-loop campus 300,000 to 1 million gallons a month, evaporative campus 4 to 6 million, single-family housing about 2 million. Closed-loop initial fill: 3,000 to 6,000 gallons per MW (industry sources, not peer-reviewed). QTS Fort Worth: about 50,000 gallons a month, air-cooled closed loop (operator statement, October 21, 2026).</p></details>
+ ${pn(2)}</section>`;
+ h+=`<section class="screen" id="rule" role="tabpanel"><div class="qnum">Question 3 · Options for reducing impacts (4.2.4)</div><h1>What does Fort Worth's rule say?</h1>
+ <p class="lede">The City already requires closed-loop cooling for new data centers. The open question is what that phrase covers.</p>
+ <div class="panel"><h2>What is adopted ${B('rule','Adopted policy')}</h2>
+ <p>On August 11, 2026 the City Council adopted the Installation Policy and Design Criteria for Water, Wastewater, and Reclaimed Water Infrastructure. For new data centers in the Fort Worth Water service area it requires closed-loop cooling and a Non-Significant Industrial User pretreatment permit (chemical disclosure, spill control, secondary containment, monitoring access, discharge limits, annual certification).</p>
+ <h2>How the City describes it ${B('rec','City web page')}</h2>
+ <p>Closed-loop cooling is described as a system "designed to reuse water within the system." Cooling towers are described as bringing warm water into contact with cooler air "in either a closed loop or open air system." The City estimates 300,000 to 1 million gallons a month per 100 acres for a closed-loop campus, against 4 to 6 million for an evaporative one and about 2 million for single-family housing on the same land.</p>
+ <h2>What is not yet stated</h2>
+ <p>Whether "closed-loop" means dry heat rejection only, or also admits closed-circuit evaporative and hybrid equipment. The City's own monthly estimate is well above what a dry campus uses (QTS reports about 50,000 gallons a month), which suggests the category is broader than dry. That distinction determines both on-site water consumption and the size of any increase in summer electricity demand.</p>
+ <div class="controls"><div class="toggle" id="rsel" role="group" aria-label="Reading of the rule"><button aria-pressed="true" data-r="dry">If "closed-loop" means dry only</button><button aria-pressed="false" data-r="hyb">If it also admits hybrid and closed-circuit evaporative</button></div></div>
+ <div id="rule-text"></div></div>
+ <div class="take"><b>Takeaway.</b> The label settles less than it seems. A requirement written as a metered result (cooling make-up water by source, with any seasonal spray use counted and reported) says what the City will actually get; a requirement written as "closed-loop" leaves it to the equipment catalog. The rack-side cooling method (air, liquid to chip, immersion) does not need regulating for water, because it uses none.</div>
+ <div class="limit"><b>What this does not show.</b> This guide has not seen the adopted policy text itself, only the City's public descriptions of it; the definition may be more specific in the document. Whether a particular design complies is a question for the Water Utility, not for this guide. ${B('rec','City records')}</div>
+ <details><summary>Likely questions, short answers</summary>
+ <p><b>Does closed-loop mean zero water?</b> No. It means the heat-carrying fluid is sealed. Dry systems are near zero; closed-circuit evaporative and hybrid systems use water, hybrid mainly on hot days.</p>
+ <p><b>Is the brief saying the City's rule is wrong?</b> No. It says the public definition is not specific enough to know what water outcome it guarantees, and suggests defining the requirement by metered consumption.</p>
+ <p><b>Does dry cooling just move the problem to the grid?</b> Partly: more summer electricity, and some water at the power plant (an ERCOT-mix screening value of about 1.4 liters per kWh). The brief treats on-site and power-plant water as separate quantities and does not add them.</p>
+ <p><b>What does an existing Fort Worth campus use?</b> QTS reports about 50,000 gallons a month for its air-cooled campus, roughly the use of eight households. Other operators have not disclosed; the City's application requirement and pretreatment permits are the means to collect this.</p></details>
+ ${pn(3)}</section>`;
+ document.getElementById('main').innerHTML=h;
+}
+let cur=0;
+function show(i,push){cur=Math.max(0,Math.min(SCREENS.length-1,i));document.querySelectorAll('section.screen').forEach((s,k)=>s.classList.toggle('active',k===cur));document.querySelectorAll('#nav button').forEach((b,k)=>{b.setAttribute('aria-selected',k===cur);b.tabIndex=k===cur?0:-1});window.scrollTo({top:0});if(push&&location.hash!=='#'+SCREENS[cur].id){try{history.pushState(null,'','#'+SCREENS[cur].id)}catch(e){}}const hd=document.querySelector('section.screen.active h1');if(hd){hd.tabIndex=-1;hd.focus({preventScroll:true});}}
+function go(i){show(i,true)}
+function fromHash(){const h=SCREENS.findIndex(s=>'#'+s.id===location.hash);show(h>=0?h:0,false)}
+// ---- 1 path
+function drawPath(){
+ const k=document.getElementById('meth').value; const m=METHODS[k]; const sec=document.getElementById('sec').value;
+ const svg=document.getElementById('c-path'); svg.setAttribute('viewBox','0 0 900 230');
+ let s=`<defs><marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="var(--muted)"/></marker></defs>`;
+ const box=(x,w,t1,t2,fill,onnavy)=>`<rect x="${x}" y="60" width="${w}" height="90" rx="8" fill="${fill}"/><text x="${x+w/2}" y="98" text-anchor="middle" class="${onnavy?'onnavy':''}">${t1}</text><text x="${x+w/2}" y="124" text-anchor="middle" class="small ${onnavy?'onnavy':'muted'}">${t2}</text>`;
+ s+=box(20,200,'Computers','electricity becomes heat','var(--navy)',true);
+ s+=`<path d="M225,105 l50,0" stroke="var(--muted)" stroke-width="2" marker-end="url(#ar2)"/>`;
+ s+=box(280,220,'Rack-side cooling',sec.toLowerCase()+', no water used','var(--surface2)');
+ s+=`<path d="M505,105 l50,0" stroke="var(--muted)" stroke-width="2" marker-end="url(#ar2)"/>`;
+ s+=box(560,230,'Heat rejection',m.closed?'process fluid sealed':'water open to air',m.wet?'var(--strip)':'var(--surface2)');
+ s+=`<path d="M795,105 l55,0" stroke="var(--muted)" stroke-width="2" marker-end="url(#ar2)"/><text x="880" y="100" text-anchor="middle" class="small muted">Air</text>`;
+ if(m.wet){const lab=m.wet==='hot'?'water evaporates in hot hours':'water evaporates here';s+=`<text x="675" y="40" text-anchor="middle" class="small" style="fill:var(--red)" font-weight="600">${lab}</text>`;for(let i=0;i<5;i++){s+=`<path d="M${620+i*28},158 q6,8 0,16 q-6,-8 0,-16" fill="var(--blue)"/>`}}
+ else{s+=`<text x="675" y="40" text-anchor="middle" class="small" style="fill:var(--green)" font-weight="600">no water touches air</text><text x="675" y="178" text-anchor="middle" class="small muted">fans and compressors work harder on hot days</text>`}
+ s+=`<text x="120" y="200" text-anchor="middle" class="small muted">secondary side: the operator's choice</text><text x="675" y="212" text-anchor="middle" class="small muted">primary side: decides water use</text>`;
+ svg.innerHTML=svg.querySelector('title').outerHTML+s;
+ document.getElementById('path-cap').textContent='Schematic of the heat path. The shaded final box is where water is consumed, if any.';
+ document.getElementById('path-text').innerHTML=`<div class="kv"><span>Heat rejection</span><b>${m.n}</b><span>What happens</span><b>${m.where}</b><span>On-site water</span><b>${m.water}</b><span>Electricity</span><b>${m.elec}</b><span>Is the process loop "closed"?</span><b>${m.closed?'Yes':'No'}</b><span>Does water touch air?</span><b>${m.wet==='hot'?'Yes, in hot hours':m.wet?'Yes':'No'}</b></div>`;
+ document.getElementById('path-take').innerHTML=`<b>Takeaway.</b> ${m.closed&&m.wet?'This is a closed-loop design that still consumes water: the process fluid is sealed, but a spray circuit evaporates water on the outside of the coil. "Closed-loop" alone does not mean low water use.':m.closed?'This is the only kind of design that is essentially water-free. The price is paid in electricity on hot days, which is a Pillar 1 and grid question.':'This is the design the City\'s rule is meant to rule out: water carrying the heat is sprayed into the air and a large share evaporates.'} The rack-side method (${sec.toLowerCase()}) changes none of this.`;
+}
+// ---- 2 how much
+function drawHM(){
+ const mw=+document.getElementById('mw').value; const it=+document.getElementById('int').value; const sel=document.getElementById('int'); const lab=sel.options[sel.selectedIndex].text;
+ document.getElementById('mw-out').textContent=fmt(mw)+' MW';
+ const gal=mw*1000*8760*it/3.785, mgd=gal/365/1e6; const avg=216, mx=342.49;
+ const hh=gal/365/210; const fill=mw*3000, fill2=mw*6000;
+ document.getElementById('hm-stat').innerHTML=`<div><div class="n">${it===0?'about 0':fmt(gal/1e6)+' M'}</div><div class="l">gallons a year${it===0?' (plus a one-time fill of '+fmt(fill)+' to '+fmt(fill2)+' gallons)':''}</div></div><div><div class="n">${it===0?'about 0':mgd.toFixed(2)}</div><div class="l">million gallons a day, averaged over the year</div></div>`;
+ const svg=document.getElementById('c-bar'); const W=900,H=120; svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+ const x0=20,x1=860; const X=v=>x0+(x1-x0)*Math.min(v,360)/360;
+ let s=`<line x1="${x0}" y1="70" x2="${x1}" y2="70" stroke="var(--rule2)"/>`;
+ s+=`<rect x="${x0}" y="40" width="${X(avg)-x0}" height="26" fill="var(--surface2)" stroke="var(--rule2)"/><text x="${X(avg)+6}" y="58" class="small muted">Fort Worth average day, 216 MGD</text>`;
+ s+=`<line x1="${X(mx)}" y1="30" x2="${X(mx)}" y2="78" stroke="var(--ink)" stroke-dasharray="4 3"/><text x="${X(mx)}" y="22" text-anchor="end" class="small muted">maximum day, 342 MGD</text>`;
+ const bw=Math.max(X(mgd)-x0,2); s+=`<rect x="${x0}" y="80" width="${bw}" height="26" fill="var(--accent)"/><text x="${x0+bw+6}" y="98" class="small" font-weight="600">campus, ${mgd<0.005?'about 0':mgd.toFixed(2)} MGD${mgd>0?' ('+(100*mgd/avg).toFixed(1)+'% of the average day, '+(100*mgd/mx).toFixed(1)+'% of the maximum day)':''}</text>`;
+ svg.innerHTML=svg.querySelector('title').outerHTML+s;
+ document.getElementById('hm-cap').textContent='Campus average-day use drawn against Fort Worth Water\'s FY2025 average and maximum day (same scale).';
+ const months=gal/12;
+ document.getElementById('hm-text').innerHTML=`<div class="kv"><span>Assumption</span><b>${fmt(mw)} MW of computing load at full load all year; ${lab}</b><span>Equivalent households (about 210 gallons a day each)</span><b>${it===0?'about 0 (domestic use aside)':'about '+fmt(Math.round(hh/ (hh>=1000?100:10))*(hh>=1000?100:10))}</b><span>Per month</span><b>${it===0?'about 0':'about '+(months>=1e6?(months/1e6).toFixed(1)+' million gallons':fmt(Math.round(months/1000)*1000)+' gallons')}</b><span>For comparison</span><b>QTS Fort Worth reports about 50,000 gallons a month (operator statement); the City estimates 300,000 to 1,000,000 a month per 100 acres for a closed-loop campus and 4 to 6 million for an evaporative one.</b></div>`;
+ document.getElementById('hm-take').innerHTML=`<b>Takeaway.</b> At ${fmt(mw)} MW the answer runs from about zero (dry) to about ${(mw*1000*8760*2.44/3.785/365/1e6).toFixed(2)} MGD (open towers at the upper modeled intensity); a fleet-average intensity gives about ${(mw*1000*8760*0.27/3.785/365/1e6).toFixed(2)} MGD. The heat-rejection choice, not the size alone, decides which of these a campus is. Every real campus should be asked for its metered make-up water rather than placed on this chart by assumption.`;
+}
+// ---- 3 rule
+function drawRule(){
+ const r=document.querySelector('#rsel [aria-pressed="true"]').dataset.r;
+ document.getElementById('rule-text').innerHTML= r==='dry'
+  ?`<p><b>Dry only.</b> New campuses would use essentially no cooling water beyond a one-time fill and domestic use; the City's 300,000 to 1 million gallons a month estimate would be an overstatement for most of them. The trade-off moves to electricity: about 5 to 15 percent more cooling energy on hot days (the brief's working range), landing on ERCOT's summer peak, with some water consumed at power plants instead. Liquid-cooled computer halls, which tolerate warmer coolant, shrink that penalty.</p>`
+  :`<p><b>Hybrid and closed-circuit evaporative admitted.</b> Campuses would use little water in mild weather and spray water on the hottest days, so annual totals stay low but the demand lands on the utility's peak days, which is the quantity that sizes treatment, pumping, and drought exposure (brief Key Finding 5). A closed-circuit evaporative cooler running steadily would use water of the same order as a tower. Under this reading the City's monthly estimate is plausible, and metering by source and by season becomes the only way to know what a campus actually uses.</p>`;
+}
+// ---- wiring
+build();
+const nav=document.getElementById('nav'); SCREENS.forEach((s,i)=>{const b=document.createElement('button');b.setAttribute('role','tab');b.id='tab-'+i;b.setAttribute('aria-controls',s.id);b.textContent=s.short;b.onclick=()=>go(i);nav.appendChild(b)});
+document.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){go(+g.dataset.go);return}
+ const t=e.target.closest('.toggle button');if(t){t.parentElement.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b===t));redraw();}});
+document.addEventListener('input',redraw);document.addEventListener('change',redraw);
+document.addEventListener('keydown',e=>{const tag=e.target.tagName;if(tag==='INPUT'||tag==='SELECT'||tag==='BUTTON'||tag==='SUMMARY'||tag==='A')return;if(e.key==='ArrowRight')go(cur+1);if(e.key==='ArrowLeft')go(cur-1)});
+window.addEventListener('hashchange',fromHash);window.addEventListener('popstate',fromHash);
+function redraw(){drawPath();drawHM();drawRule();}
+redraw(); fromHash();
+</script>
+</body>
+</html>
